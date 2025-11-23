@@ -1,5 +1,5 @@
 
-#Apex: Graph-Based Semantic Clustering for Predator Detection
+# Apex: Graph-Based Semantic Clustering for Predator Detection
 
 ## General Summary
 
