@@ -1,15 +1,3 @@
-"""Simple Flask backend for apex-demo
-
-Routes:
-- POST /api/generate_key -> returns JSON { key: <random_key> }
-
-Run:
-  python -m venv .venv
-  .venv\Scripts\Activate.ps1; pip install -r requirements.txt
-  python backend/app.py
-
-This listens on localhost:5000 and enables CORS so the frontend can call it during development.
-"""
 from flask import Flask, jsonify, request, session
 from flask_cors import CORS
 import secrets

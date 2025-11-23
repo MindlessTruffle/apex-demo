@@ -148,5 +148,120 @@
     }
   ],
   "FzIYxDJpHLXf0BgVR7ZpYw": [],
-  "qeMExcc-WePLvgHeJbbrwA": []
+  "qeMExcc-WePLvgHeJbbrwA": [],
+  "uMYE5BRJs2nUGIEfPyqHmw": [],
+  "X3rH6SdSzucXbz5obRFnkQ": [
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 58.82,
+        "risk_keywords": 2,
+        "dist_pred": 1.0,
+        "dist_norm": 1.0
+      },
+      "ts": 1763869952
+    }
+  ],
+  "nT4KwLs3IhN2xePe5r-HkA": [
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 58.82,
+        "risk_keywords": 2,
+        "dist_pred": 1.0,
+        "dist_norm": 1.0
+      },
+      "ts": 1763870044
+    },
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 58.82,
+        "risk_keywords": 2,
+        "dist_pred": 1.0,
+        "dist_norm": 1.0
+      },
+      "ts": 1763870122
+    }
+  ],
+  "0ZW6Oq9_8KKuOxCZu6z5KQ": [
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 58.82,
+        "risk_keywords": 2,
+        "dist_pred": 1.0,
+        "dist_norm": 1.0
+      },
+      "ts": 1763870880
+    },
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 54.05,
+        "risk_keywords": 1,
+        "dist_pred": 1.0,
+        "dist_norm": 1.0
+      },
+      "ts": 1763870921
+    }
+  ],
+  "A4fNpb3rr40MLdBEuvGJ_g": [
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 59.28,
+        "risk_keywords": 2,
+        "dist_pred": 0.4231042531908713,
+        "dist_norm": 0.43113144414134275
+      },
+      "ts": 1763871234
+    },
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 51.66,
+        "risk_keywords": 1,
+        "dist_pred": 0.38725200150411976,
+        "dist_norm": 0.35178255199304265
+      },
+      "ts": 1763871309
+    }
+  ],
+  "9YZwBgsi1ZnjH0EDOovfNA": [],
+  "pVAHensGFoJ6ROQ8rTa2lg": [
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 51.66,
+        "risk_keywords": 1,
+        "dist_pred": 0.38725200150411976,
+        "dist_norm": 0.35178255199304265
+      },
+      "ts": 1763871337
+    },
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 59.28,
+        "risk_keywords": 2,
+        "dist_pred": 0.4231042531908713,
+        "dist_norm": 0.43113144414134275
+      },
+      "ts": 1763871353
+    }
+  ],
+  "rDxEdPfunyVoihl_VEsp4A": [
+    {
+      "result": {
+        "is_predator": true,
+        "confidence": 59.28,
+        "risk_keywords": 2,
+        "dist_pred": 0.4231042531908713,
+        "dist_norm": 0.43113144414134275
+      },
+      "ts": 1763908933
+    }
+  ],
+  "5Jg3PufkAlsL9roumCJ4bA": []
 }
