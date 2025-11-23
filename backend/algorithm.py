@@ -42,16 +42,32 @@ def runInference(chat_data):
         dist_pred: float
         dist_norm float
     """
-    model_path = "mini_predator_model.pt"
+    model_path = r"C:\Users\sammy\apex-demo\backend\mini_predator_model.pt"
     detector = PredatorDetector("dummy.txt")
+    detector.load_model(model_path)
     embedder = MessageEmbedder(API_KEY)
     graph_builder = GraphBuilder()
     
-    embeddings = embedder.embed_messages(chat_data)
-    conversation = Conversation(chat_data, embeddings)
+    # Accept either a raw list of messages or a conversation dict with a 'messages' key.
+    if isinstance(chat_data, dict):
+        conversation_dict = chat_data
+        messages = conversation_dict.get('messages', [])
+    else:
+        # assume chat_data is a list of message dicts
+        messages = chat_data
+        conversation_dict = {
+            'conversation_id': 'MANUAL_TEST',
+            'user_ids': list(set(m.get('author') for m in messages if isinstance(m, dict))),
+            'messages': messages
+        }
+
+    embeddings = embedder.embed_messages(messages)
+    conversation = Conversation(conversation_dict, embeddings)
     graph_builder.build_graph(conversation)
     
     result = detector.predict_new(conversation)
+
+    print("Inference Result:", result)
     
     return result
     

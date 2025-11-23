@@ -112,7 +112,7 @@ class PredatorDetector:
         predator_probability = 1 - (adjusted_pred_dist / total_dist)
         
         return {
-            "is_predator": predator_probability > 0.65,
+            "is_predator": predator_probability > 0.5,
             "confidence": round(predator_probability * 100, 2),
             "risk_keywords": risk_count,
             "dist_pred": min_dist_pred,

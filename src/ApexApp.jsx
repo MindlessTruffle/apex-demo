@@ -75,37 +75,43 @@ const MOCK_ALERTS = [
 ];
 
 const CODE_SNIPPETS = {
-  web: `import { ApexGuard } from '@apex/web';
+  python: `import requests
 
-// Initialize with a smile :)
-const guard = new ApexGuard({
-  key: 'pk_live_12345',
-  theme: 'playful'
+# 1. Setup
+API_KEY = "your_key_here"
+URL = "http://localhost:5000/api/run_inference"
+
+# 2. Send Chat Log
+resp = requests.post(
+    URL,
+    json={"messages": [{"text": "hello world"}]},
+    headers={"Authorization": f"Bearer {API_KEY}"}
+)
+
+# 3. View Safety Result
+print(resp.json())`,
+
+  node: `const axios = require('axios');
+
+// 1. Setup
+const API_KEY = "your_key_here";
+const URL = "http://localhost:5000/api/run_inference";
+
+// 2. Send Chat Log
+const response = await axios.post(URL, {
+    messages: [{ text: "hello world" }]
+  }, {
+    headers: { Authorization: \`Bearer \${API_KEY}\` }
 });
 
-// Watch the chat!
-guard.monitor('#chat-box');`,
-  node: `const Apex = require('@apex/node');
-const client = new Apex('sk_live_54321');
+// 3. View Safety Result
+console.log(response.data);`,
 
-// Safe kids, happy life
-app.post('/message', async (req, res) => {
-  const safety = await client.check(req.body.text);
-  if (safety.isSafe) {
-     saveMessage(req.body);
-  }
-});`,
-  mobile: `// Swift / iOS
-import ApexSafety
-
-let safety = Apex.shared
-safety.configure(apiKey: "pk_ios_999")
-
-func onSend(_ text: String) {
-    if safety.isClean(text) {
-        sendMessage(text)
-    }
-}`
+  curl: `# Quick Terminal Test
+curl -X POST http://localhost:5000/api/run_inference \\
+  -H "Authorization: Bearer <YOUR_KEY>" \\
+  -H "Content-Type: application/json" \\
+  -d '{ "messages": [{"text": "hello"}] }'`
 };
 
 // --- Components ---
@@ -188,43 +194,42 @@ const CodeHighlighter = ({ code, language }) => {
     const [copied, setCopied] = useState(false);
 
     const highlight = (text) => {
-        return text.split(/(\s+)/).map((word, i) => {
-            if (['import', 'from', 'const', 'let', 'var', 'async', 'await', 'function', 'return', 'if', 'else', 'new'].includes(word)) {
-                return <span key={i} className="text-purple-600 font-bold">{word}</span>;
+        // Split by strings, comments, keywords, and punctuation
+        const tokens = text.split(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`[^`]*`|\/\/.*|#.*|[(){}[\].,:;]|\b(?:import|from|const|let|var|async|await|function|return|if|else|new|try|catch|class|def)\b)/g);
+
+        return tokens.map((token, i) => {
+            if (!token) return null;
+            
+            // 1. Comments (Gray & Italic)
+            if (token.trim().startsWith('//') || token.trim().startsWith('#')) {
+                return <span key={i} className="text-stone-400 italic">{token}</span>;
             }
-            if (['true', 'false', 'null', 'undefined'].includes(word)) {
-                return <span key={i} className="text-orange-600">{word}</span>;
+            // 2. Strings (Emerald Green)
+            if (/^["'`]/.test(token)) {
+                return <span key={i} className="text-emerald-600">{token}</span>;
             }
-            if (word.startsWith("'") || word.startsWith('"') || word.startsWith("`")) {
-                return <span key={i} className="text-green-700">{word}</span>;
+            // 3. Keywords (Indigo/Purple)
+            if (/^(import|from|const|let|var|async|await|function|return|if|else|new|try|catch|class|def)$/.test(token)) {
+                return <span key={i} className="text-indigo-600 font-bold">{token}</span>;
             }
-            if (word.startsWith('//')) {
-                return <span key={i} className="text-stone-400 italic">{word}</span>;
+            // 4. Built-ins/Methods (Blue)
+            if (/^(console|log|print|requests|axios|fetch|json|JSON|require)$/.test(token)) {
+                return <span key={i} className="text-blue-600">{token}</span>;
             }
-            return <span key={i} className="text-stone-700">{word}</span>;
+            
+            // 5. Default Text (Dark Stone)
+            return <span key={i} className="text-stone-800">{token}</span>;
         });
     };
 
     const handleCopy = () => {
-        // Use a more robust method for local environments
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(code);
-        } else {
-            // Fallback for iFrame restrictions
-            const textarea = document.createElement('textarea');
-            textarea.value = code;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-        }
-        
+        navigator.clipboard?.writeText(code);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-[6px_6px_0px_rgba(0,0,0,0.1)] border-2 border-stone-900 overflow-hidden relative group">
+        <div className="bg-white rounded-2xl shadow-[6px_6px_0px_rgba(0,0,0,0.1)] border-2 border-stone-900 overflow-hidden relative group my-6">
             <div className="flex items-center justify-between px-4 py-3 bg-stone-100 border-b-2 border-stone-900">
                 <div className="flex space-x-2">
                     <div className="w-3 h-3 rounded-full bg-[#FF5F56] border border-black/10" />
@@ -232,16 +237,16 @@ const CodeHighlighter = ({ code, language }) => {
                     <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10" />
                 </div>
                 <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">{language}</span>
-                <div className="w-10"></div> 
+                <div className="w-8"></div> 
             </div>
-            <div className="p-6 overflow-x-auto bg-stone-50">
-                <pre className="font-mono text-sm leading-relaxed text-stone-800">
+            <div className="p-6 overflow-x-auto bg-[#fffdf9]">
+                <pre className="font-mono text-sm leading-relaxed">
                     {highlight(code)}
                 </pre>
             </div>
             <button 
                 onClick={handleCopy}
-                className="absolute top-14 right-4 p-2 rounded-lg bg-white border-2 border-stone-200 hover:border-stone-900 text-stone-500 hover:text-stone-900 transition-all shadow-sm"
+                className="absolute top-14 right-4 p-2 rounded-lg bg-white border-2 border-stone-200 hover:border-stone-900 text-stone-500 hover:text-stone-900 transition-all shadow-sm z-10"
             >
                 {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
             </button>
@@ -319,24 +324,27 @@ const FeatureBoard = () => (
 );
 
 const InstallationPage = () => {
-  const [platform, setPlatform] = useState('web');
+  const [platform, setPlatform] = useState('python');
 
   return (
     <div className="min-h-screen bg-[#FFFDF9] pt-32 pb-20 px-6">
         <div className="max-w-5xl mx-auto">
             <div className="text-center mb-16">
-                <h2 className="text-5xl font-serif font-bold text-stone-900 mb-6">Let's get set up.</h2>
-                <p className="text-xl text-stone-500 max-w-2xl mx-auto">Choose your flavor below. It only takes a few lines of code.</p>
+                <h2 className="text-5xl font-serif font-bold text-stone-900 mb-6">Zero-Setup Integration.</h2>
+                <p className="text-xl text-stone-500 max-w-2xl mx-auto">
+                    Apex is a pure REST API. No SDKs to install. No heavy dependencies.
+                    Just send JSON, get safety analysis back.
+                </p>
             </div>
 
             <div className="bg-white rounded-[3rem] shadow-[8px_8px_0px_rgba(0,0,0,0.05)] border-2 border-stone-900 overflow-hidden flex flex-col md:flex-row">
                 {/* Sidebar */}
                 <div className="w-full md:w-72 bg-stone-50 p-8 border-b md:border-b-0 md:border-r-2 border-stone-900 flex flex-col gap-3">
-                    <div className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4 pl-4">Platform</div>
+                    <div className="text-xs font-bold text-stone-400 uppercase tracking-widest mb-4 pl-4">Language</div>
                     {[
-                        { id: 'web', label: 'Web / React', icon: Globe },
-                        { id: 'node', label: 'Node.js', icon:  Terminal },
-                        { id: 'mobile', label: 'iOS & Android', icon: Smartphone },
+                        { id: 'python', label: 'Python', icon: Terminal },
+                        { id: 'node', label: 'Node.js / TS', icon:  Globe },
+                        { id: 'curl', label: 'cURL / Bash', icon: Terminal },
                     ].map((p) => (
                         <button
                             key={p.id}
@@ -361,16 +369,23 @@ const InstallationPage = () => {
                              <div className="w-3 h-3 rounded-full bg-[#FFBD2E] border border-black/10" />
                              <div className="w-3 h-3 rounded-full bg-[#27C93F] border border-black/10" />
                         </div>
-                        <span className="text-sm font-mono text-stone-400 font-bold">installation.js</span>
+                        <span className="text-sm font-mono text-stone-400 font-bold">request.{platform === 'curl' ? 'sh' : platform === 'python' ? 'py' : 'js'}</span>
                     </div>
                     
                     <div className="mb-8">
                         <CodeHighlighter code={CODE_SNIPPETS[platform]} language={platform} />
                     </div>
 
-                    <div className="flex gap-4 text-sm text-stone-600 bg-blue-50 p-4 rounded-xl border-2 border-blue-100">
-                        <div className="bg-blue-100 text-blue-700 p-1 rounded-full"><CheckCircle className="w-4 h-4"/></div>
-                        <p>Estimated setup time: <span className="font-bold text-stone-900">Less than 5 minutes</span></p>
+                    {/* "Pro Tip" - Updated to Pastel Yellow (bg-[#FEF9C3]) */}
+                    <div className="relative bg-[#FED800] border-2 border-stone-900 rounded-2xl p-6 shadow-[6px_6px_0px_#1c1917] hover:translate-y-[-2px] hover:shadow-[8px_8px_0px_#1c1917] transition-all transform rotate-1 group cursor-default">
+                        <div className="absolute -top-3 -right-3 bg-white border-2 border-stone-900 rounded-full p-2 shadow-sm rotate-12 group-hover:rotate-45 transition-transform">
+                            <Zap className="w-6 h-6 text-stone-900 fill-yellow-400" />
+                        </div>
+                        <h4 className="font-serif font-bold text-xl text-stone-900 mb-2">Don't forget the key!</h4>
+                        <p className="text-stone-800 font-medium leading-relaxed">
+                            Generate your API Key in <span className="underline decoration-wavy decoration-stone-400">Dashboard</span>. 
+                            Pass into the header as <code className="bg-white/60 border border-black/20 px-1.5 py-0.5 rounded font-mono text-xs font-bold text-stone-900">Bearer &lt;KEY&gt;</code>.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -385,10 +400,10 @@ const Documentation = () => (
             <div className="sticky top-32">
                 <h3 className="font-serif font-bold text-xl text-stone-900 mb-6 flex items-center gap-2">
                     <FileText className="w-5 h-5 text-indigo-600" />
-                    Contents
+                    Reference
                 </h3>
                 <ul className="space-y-1">
-                    {['Introduction', 'Authentication', 'Handling Events', 'Webhooks', 'Privacy Policy'].map((item, i) => (
+                    {['Overview', 'Authentication', 'Inference Endpoint', 'Smart Normalization', 'Retrieval'].map((item, i) => (
                         <li key={item} className={`px-4 py-2 rounded-lg cursor-pointer text-sm font-bold transition-colors ${i === 0 ? 'bg-indigo-100 text-indigo-900' : 'text-stone-500 hover:text-stone-900 hover:bg-stone-50'}`}>
                             {item}
                         </li>
@@ -397,27 +412,98 @@ const Documentation = () => (
             </div>
         </div>
         <div className="flex-1 max-w-3xl">
-            <h1 className="text-5xl font-serif font-bold text-stone-900 mb-8">Introduction</h1>
+            <h1 className="text-5xl font-serif font-bold text-stone-900 mb-8">API Documentation</h1>
             <p className="text-xl text-stone-600 mb-8 leading-relaxed font-light">
-                Welcome to the Apex API. We've designed our endpoints to be as human-readable as possible. 
-                Our goal is to help you build safer communities without the headache.
+                Apex provides a stateless HTTP interface for safety analysis. 
+                Designed for chat applications, game servers, and social platforms.
             </p>
             
             <div className="bg-yellow-50 border-2 border-yellow-200 p-6 rounded-2xl mb-10 shadow-[4px_4px_0px_#FDE047]">
                 <h4 className="flex items-center text-yellow-800 font-bold mb-2 gap-2">
-                    <AlertTriangle className="w-5 h-5" />
-                    Sensitive Data
+                    <Lock className="w-5 h-5" />
+                    Authentication
                 </h4>
-                <p className="text-yellow-900/80 leading-relaxed font-medium">
-                    Always hash user identifiers before sending them to Apex. We love data privacy as much as you do.
+                <p className="text-yellow-900/80 leading-relaxed font-medium mb-3">
+                    All endpoints require a valid API Key sent in the Authorization header.
                 </p>
+                <div className="bg-yellow-100/50 p-3 rounded-lg border border-yellow-200/50 font-mono text-sm text-yellow-900 font-bold">
+                    Authorization: Bearer &lt;YOUR_API_KEY&gt;
+                </div>
             </div>
 
-            <h2 className="text-3xl font-serif font-bold text-stone-900 mb-6">Quick Start</h2>
-            <p className="text-stone-600 mb-4">Just send a POST request to our scan endpoint.</p>
-            <div className="bg-white p-6 rounded-2xl border-2 border-stone-900 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] font-mono text-sm text-indigo-600 font-bold">
-                POST https://api.apex.security/v1/scan
+            {/* Inference Section */}
+            <h2 className="text-3xl font-serif font-bold text-stone-900 mb-6">Running Inference</h2>
+            <p className="text-stone-600 mb-4">
+                The primary endpoint for analyzing conversation data.
+            </p>
+            
+            <div className="bg-stone-900 text-white p-4 rounded-xl shadow-md mb-8 font-mono text-sm flex items-center gap-3">
+                <span className="bg-green-500 text-stone-900 px-2 py-0.5 rounded font-bold">POST</span>
+                <span>/api/run_inference</span>
             </div>
+
+            <h3 className="text-xl font-bold text-stone-900 mb-3">Smart Data Normalization</h3>
+            <p className="text-stone-600 mb-4 text-sm leading-relaxed">
+                Our engine uses an intelligent normalization layer. You do not need to strictly format your JSON. 
+                We automatically detect keys like <code>text</code>, <code>content</code>, <code>body</code>, or <code>message</code>.
+                If <code>author</code> or <code>time</code> are missing, we synthesize them for you.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+                <div className="bg-white p-5 rounded-xl border border-stone-200">
+                    <div className="font-bold text-xs text-stone-400 uppercase tracking-widest mb-3">Strict Format</div>
+                    <pre className="text-xs font-mono text-stone-600 whitespace-pre-wrap">{`{
+  "messages": [
+    { 
+      "author": "User1", 
+      "text": "Hello", 
+      "time": "10:00" 
+    }
+  ]
+}`}</pre>
+                </div>
+                <div className="bg-white p-5 rounded-xl border border-stone-200">
+                    <div className="font-bold text-xs text-stone-400 uppercase tracking-widest mb-3">Loose Format</div>
+                    <pre className="text-xs font-mono text-stone-600 whitespace-pre-wrap">{`{
+  "messages": [
+    { "body": "I can send this" },
+    { "content": "Or this format" }
+  ]
+}`}</pre>
+                </div>
+            </div>
+
+            <h3 className="text-xl font-bold text-stone-900 mb-3">Response Object</h3>
+            <p className="text-stone-600 mb-4 text-sm">
+                Successful requests return a <code>201 Created</code> status.
+            </p>
+            <div className="bg-stone-50 p-6 rounded-xl border-2 border-stone-200 font-mono text-sm text-stone-700 relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-stone-200 px-3 py-1 text-xs font-bold text-stone-500 rounded-bl-xl">JSON</div>
+{`{
+  "ok": true,
+  "entry": {
+    "result": { ... },  // The safety analysis
+    "ts": 1715420000    // Unix Timestamp
+  }
+}`}
+            </div>
+
+            <hr className="my-12 border-stone-200"/>
+
+            {/* Retrieval Section */}
+            <h2 className="text-3xl font-serif font-bold text-stone-900 mb-6">Retrieving Results</h2>
+            <p className="text-stone-600 mb-4">
+                Fetch historical inference results stored under your API key.
+            </p>
+            
+            <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm mb-6 font-mono text-sm flex items-center gap-3">
+                <span className="bg-blue-500 text-white px-2 py-0.5 rounded font-bold">GET</span>
+                <span className="text-stone-800">/api/results</span>
+            </div>
+            
+            <p className="text-sm text-stone-500 italic border-l-4 border-stone-300 pl-4">
+                Note: This returns the in-memory data store for the specific key provided in the Authorization header.
+            </p>
         </div>
     </div>
 );
@@ -487,20 +573,19 @@ const Dashboard = ({ user, handleLogin }) => {
     const [showOnboarding, setShowOnboarding] = useState(false);
     const [apiKey, setApiKey] = useState(null);
     const [generating, setGenerating] = useState(false);
-    const [sumResult, setSumResult] = useState(null);
     
-    // Sentence Store State
-    const [sentenceInput, setSentenceInput] = useState('');
-    const [sentences, setSentences] = useState([]);
-    const [loadingSentences, setLoadingSentences] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
+    // Inference Store State
+    const [inferenceInput, setInferenceInput] = useState('');
+    const [results, setResults] = useState([]);
+    const [loadingResults, setLoadingResults] = useState(false);
+    const [submittingInference, setSubmittingInference] = useState(false);
+    const [lastResult, setLastResult] = useState(null);
 
     // --- API FUNCTIONS ---
 
     const generateApiKey = async () => {
         setGenerating(true);
         setApiKey(null);
-        setSumResult(null);
         try {
             const payload = { project: project?.name || 'default' };
             const res = await fetch('http://localhost:5000/api/generate_key', { 
@@ -519,74 +604,74 @@ const Dashboard = ({ user, handleLogin }) => {
         }
     };
 
-    const computeSum = async () => {
-        if (!apiKey) return;
-        setSumResult(null);
-        try {
-            const res = await fetch('http://localhost:5000/api/sum_digits', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ key: apiKey })
-            });
-            if (!res.ok) throw new Error('Network response was not ok');
-            const data = await res.json();
-            setSumResult(data.sum);
-        } catch (err) {
-            console.error('Failed to compute sum', err);
-            setSumResult('ERR');
-        }
-    };
+    // sumDigits removed — no longer used
 
-    const submitSentence = async () => {
+    const runInference = async () => {
         if (!apiKey) return;
-        const sentence = sentenceInput?.trim();
-        if (!sentence) return;
-        
-        setSubmitting(true);
+        const raw = inferenceInput?.trim();
+        if (!raw) return;
+
+        let payload;
         try {
-            const res = await fetch('http://localhost:5000/api/submit_sentence', {
+            const parsed = JSON.parse(raw);
+            // If a bare array was provided, send it directly; else wrap if needed
+            if (Array.isArray(parsed)) payload = parsed;
+            else if (parsed.messages) payload = parsed.messages;
+            else payload = parsed;
+        } catch (err) {
+            // Not JSON: send as a single user message
+            payload = [{ role: 'user', content: raw }];
+        }
+
+        setSubmittingInference(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/run_inference', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${apiKey}`
                 },
-                body: JSON.stringify({ sentence })
+                body: JSON.stringify(payload)
             });
-            if (!res.ok) throw new Error('submit failed');
-            
-            setSentenceInput('');
-            await fetchSentences(); // Refresh list
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || 'inference failed');
+            }
+            const data = await res.json();
+            // Backend returns the created entry; refresh list and show last
+            setLastResult(data.entry || data);
+            await fetchResults();
         } catch (err) {
-            console.error('Failed to submit sentence', err);
-            alert('Failed to submit. Ensure Backend is running.');
+            console.error('Failed to run inference', err);
+            alert('Inference failed. Ensure the backend is running.');
         } finally {
-            setSubmitting(false);
+            setSubmittingInference(false);
         }
     };
 
-    const fetchSentences = async () => {
+    const fetchResults = async () => {
         if (!apiKey) return;
-        setLoadingSentences(true);
+        setLoadingResults(true);
         try {
-            const res = await fetch('http://localhost:5000/api/sentences', {
+            const res = await fetch('http://localhost:5000/api/results', {
                 method: 'GET',
                 headers: { 'Authorization': `Bearer ${apiKey}` }
             });
             if (!res.ok) throw new Error('failed to fetch');
             const data = await res.json();
-            setSentences(data.sentences || []);
+            setResults(data.results || []);
         } catch (err) {
-            console.error('Failed to load sentences', err);
+            console.error('Failed to load results', err);
         } finally {
-            setLoadingSentences(false);
+            setLoadingResults(false);
         }
     };
 
     // --- EFFECTS ---
 
     useEffect(() => {
-        if (apiKey) fetchSentences();
-        else setSentences([]);
+        if (apiKey) fetchResults();
+        else setResults([]);
     }, [apiKey]);
 
     // Keyboard shortcut 'G'
@@ -674,8 +759,6 @@ const Dashboard = ({ user, handleLogin }) => {
                                          <code className="font-mono text-sm text-stone-800 px-2">{apiKey}</code>
                                          <div className="h-4 w-px bg-stone-300"></div>
                                          <button onClick={() => navigator.clipboard?.writeText(apiKey)} className="p-1.5 hover:bg-stone-100 rounded"><Copy className="w-4 h-4"/></button>
-                                         <button onClick={computeSum} className="p-1.5 hover:bg-stone-100 rounded font-bold text-xs">SUM</button>
-                                         {sumResult !== null && <span className="font-bold text-green-600 text-sm px-2">{sumResult}</span>}
                                      </div>
                                  )}
                             </div>
@@ -695,42 +778,58 @@ const Dashboard = ({ user, handleLogin }) => {
                             ) : (
                                 <div className="space-y-6">
                                     <div className="flex gap-3">
-                                        <input
-                                            value={sentenceInput}
-                                            onChange={(e) => setSentenceInput(e.target.value)}
-                                            placeholder="Type something to store securely..."
-                                            className="flex-1 p-4 border-2 border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:border-stone-900 transition-colors"
-                                            onKeyDown={(e) => e.key === 'Enter' && submitSentence()}
+                                        <textarea
+                                            value={inferenceInput}
+                                            onChange={(e) => setInferenceInput(e.target.value)}
+                                            placeholder='Paste a JSON array of messages, or type a single message...'
+                                            className="flex-1 p-4 border-2 border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:border-stone-900 transition-colors h-28 resize-y font-mono text-sm"
                                         />
-                                        <button
-                                            onClick={submitSentence}
-                                            disabled={submitting || !sentenceInput}
-                                            className="px-6 py-2 bg-stone-900 text-white rounded-xl font-bold disabled:opacity-50 hover:-translate-y-0.5 transition-transform shadow-sm"
-                                        >
-                                            {submitting ? 'Saving...' : 'Store'}
-                                        </button>
+                                        <div className="flex flex-col gap-3">
+                                            <button
+                                                onClick={runInference}
+                                                disabled={submittingInference || !inferenceInput}
+                                                className="px-6 py-2 bg-stone-900 text-white rounded-xl font-bold disabled:opacity-50 hover:-translate-y-0.5 transition-transform shadow-sm whitespace-nowrap"
+                                            >
+                                                {submittingInference ? 'Running...' : 'Run Inference'}
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const sample = [
+                                                        { role: 'system', content: 'You are a safety assistant.' },
+                                                        { role: 'user', content: 'Hey, can you help me find someone to meet up?' },
+                                                        { role: 'assistant', content: 'Sure, what are you looking for?' },
+                                                        { role: 'user', content: 'Someone around 12-13 years old in my area.' }
+                                                    ];
+                                                    setInferenceInput(JSON.stringify(sample, null, 2));
+                                                }}
+                                                className="px-4 py-2 bg-white border-2 border-stone-900 rounded-xl font-bold hover:bg-stone-50"
+                                            >
+                                                Load Sample
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div>
                                         <div className="flex items-center justify-between mb-3">
-                                            <h4 className="font-bold text-sm text-stone-500 uppercase tracking-widest">Stored Data</h4>
-                                            <button onClick={fetchSentences} className="text-sm font-bold text-indigo-600 hover:text-indigo-800">Refresh List</button>
+                                            <h4 className="font-bold text-sm text-stone-500 uppercase tracking-widest">Stored Results</h4>
+                                            <div className="flex items-center gap-3">
+                                                <button onClick={fetchResults} className="text-sm font-bold text-indigo-600 hover:text-indigo-800">Refresh</button>
+                                                <button onClick={() => { setInferenceInput(''); setLastResult(null); }} className="text-sm font-bold text-stone-500 hover:text-stone-900">Clear</button>
+                                            </div>
                                         </div>
-                                        
+
                                         <div className="max-h-64 overflow-y-auto pr-2 space-y-3">
-                                            {loadingSentences ? (
-                                                <div className="text-center py-8 text-stone-400">Loading data...</div>
-                                            ) : sentences.length === 0 ? (
+                                            {loadingResults ? (
+                                                <div className="text-center py-8 text-stone-400">Loading results...</div>
+                                            ) : results.length === 0 ? (
                                                 <div className="text-center py-8 text-stone-400 italic border-2 border-dashed border-stone-100 rounded-xl">
-                                                    No data stored yet.
+                                                    No results yet. Run an inference to store one.
                                                 </div>
                                             ) : (
-                                                sentences.map((s, i) => (
-                                                    <div key={i} className="p-4 bg-stone-50 rounded-xl border border-stone-200 flex justify-between items-start group hover:border-stone-400 transition-colors">
-                                                        <div className="text-stone-800 font-medium">{s.sentence}</div>
-                                                        <div className="text-xs font-mono text-stone-400 mt-1 bg-white px-2 py-1 rounded border border-stone-100">
-                                                            {new Date((s.ts||0)*1000).toLocaleTimeString()}
-                                                        </div>
+                                                results.map((r, i) => (
+                                                    <div key={i} className="p-4 bg-stone-50 rounded-xl border border-stone-200 flex flex-col gap-2 group hover:border-stone-400 transition-colors">
+                                                        <div className="text-sm font-mono text-stone-500">{new Date((r.ts||0)*1000).toLocaleString()}</div>
+                                                        <div className="text-stone-800 font-medium">{typeof r.result === 'string' ? r.result : <pre className="whitespace-pre-wrap text-sm font-mono">{JSON.stringify(r.result, null, 2)}</pre>}</div>
                                                     </div>
                                                 ))
                                             )}
