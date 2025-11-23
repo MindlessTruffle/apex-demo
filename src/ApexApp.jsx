@@ -117,7 +117,7 @@ const Navbar = ({ view, setView, user, handleLogin, handleLogout }) => (
         className="flex items-center cursor-pointer gap-2 group" 
         onClick={() => setView('landing')}
       >
-        <div className="bg-indigo-600 text-white p-1.5 rounded-lg group-hover:rotate-12 transition-transform shadow-[2px_2px_0px_#312e81]">
+        <div className="bg-indigo-600 text-white p-1.5 rounded-lg group-hover:rotate-12 transition-transform shadow-[3px_2px_0px_#312e81]">
             <Shield className="h-5 w-5 fill-current" />
         </div>
         <span className="text-xl font-serif font-bold text-stone-900 tracking-tight">Apex</span>
@@ -285,10 +285,10 @@ const Hero = ({ setView }) => (
       </div>
 
       <div className="mt-20 flex flex-wrap justify-center gap-8 opacity-60">
-        <span className="font-serif italic text-2xl text-stone-400">trusted by</span>
-        <span className="font-bold text-xl text-stone-300 tracking-widest">ROBLOX</span>
-        <span className="font-bold text-xl text-stone-300 tracking-widest">DISCORD</span>
-        <span className="font-bold text-xl text-stone-300 tracking-widest">MINECRAFT</span>
+        <span className="font-serif italic text-2xl text-stone-400">Integrate with</span>
+        <span className="font-bold text-xl text-stone-500 tracking-widest">WEB</span>
+        <span className="font-bold text-xl text-stone-500 tracking-widest">MOBILE</span>
+        <span className="font-bold text-xl text-stone-500 tracking-widest">DESKTOP</span>
       </div>
     </div>
   </div>
@@ -434,109 +434,178 @@ const DashboardOnboarding = ({ onComplete }) => {
     return (
         <div className="min-h-screen pt-24 pb-12 px-6 flex items-center justify-center bg-[#FFFDF9]">
             <div className="max-w-xl w-full text-center">
-                <h2 className="text-4xl font-serif font-bold text-stone-900 mb-4">
+                <h2 className="text-4xl font-serif font-bold text-stone-900 mb-8">
                     {step === 1 ? "What are we building?" : "Name your project."}
                 </h2>
                 
-                <div className="bg-white p-8 rounded-[2rem] shadow-[8px_8px_0px_rgba(0,0,0,0.1)] border-2 border-stone-900 mt-8 text-left">
-                    {step === 1 ? (
-                        <div className="grid grid-cols-1 gap-3">
-                            {[
-                                { id: 'web', label: 'Website / Web App', icon: Globe },
-                                { id: 'mobile', label: 'Mobile Application', icon: Smartphone },
-                                { id: 'desktop', label: 'Desktop Software', icon: Monitor },
-                            ].map(type => (
-                                <button 
-                                    key={type.id}
-                                    onClick={() => setFormData({ ...formData, type: type.id })}
-                                    className={`p-4 rounded-xl border-2 transition-all flex items-center gap-4 ${
-                                        formData.type === type.id 
-                                        ? 'border-indigo-600 bg-indigo-50 text-indigo-900' 
-                                        : 'border-stone-100 hover:border-stone-300 text-stone-500'
-                                    }`}
-                                >
-                                    <div className={`p-2 rounded-full ${formData.type === type.id ? 'bg-indigo-200' : 'bg-stone-100'}`}>
-                                        <type.icon className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-bold text-lg">{type.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-sm font-bold text-stone-500 mb-2 ml-1">Display Name</label>
-                                <input 
-                                    type="text" 
-                                    className="w-full p-4 bg-stone-50 border-2 border-stone-200 rounded-xl focus:outline-none focus:border-stone-900 font-bold text-lg text-stone-900"
-                                    placeholder="My Awesome App"
-                                    value={formData.name}
-                                    onChange={e => setFormData({...formData, name: e.target.value})}
-                                    autoFocus
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="mt-8 flex justify-end">
-                        <button 
+                {step === 1 ? (
+                    <div className="grid grid-cols-1 gap-4">
+                         {['Web App', 'Mobile App', 'Discord Bot'].map((type) => (
+                            <button
+                                key={type}
+                                onClick={() => setFormData({ ...formData, type })}
+                                className={`p-6 rounded-2xl border-2 text-lg font-bold transition-all ${formData.type === type ? 'bg-stone-900 text-white border-stone-900' : 'bg-white text-stone-500 border-stone-200 hover:border-stone-900'}`}
+                            >
+                                {type}
+                            </button>
+                         ))}
+                         <button 
                             onClick={handleNext}
-                            disabled={step === 1 ? !formData.type : !formData.name}
-                            className="px-8 py-3 bg-stone-900 text-white font-bold rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-800 transition-all shadow-lg hover:-translate-y-1"
-                        >
-                            {step === 1 ? "Next Step" : "Create Project"}
-                        </button>
+                            disabled={!formData.type}
+                            className="mt-6 bg-indigo-600 text-white font-bold py-4 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                         >
+                            Next Step
+                         </button>
                     </div>
-                </div>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        <input 
+                            type="text"
+                            placeholder="e.g. Project Alpha"
+                            className="w-full p-4 text-2xl font-serif font-bold text-center border-b-2 border-stone-300 focus:border-stone-900 focus:outline-none bg-transparent placeholder-stone-300"
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+                        />
+                         <button 
+                            onClick={handleNext}
+                            disabled={!formData.name}
+                            className="mt-6 bg-stone-900 text-white font-bold py-4 rounded-full disabled:opacity-50"
+                         >
+                            Create Project
+                         </button>
+                    </div>
+                )}
             </div>
         </div>
     );
 };
 
 const Dashboard = ({ user, handleLogin }) => {
-    const [recentAlerts, setRecentAlerts] = useState([]);
+    const [recentAlerts, setRecentAlerts] = useState(MOCK_ALERTS); // Default to mock alerts to prevent errors
     const [project, setProject] = useState(null); 
     const [showOnboarding, setShowOnboarding] = useState(false);
+    const [apiKey, setApiKey] = useState(null);
+    const [generating, setGenerating] = useState(false);
+    const [sumResult, setSumResult] = useState(null);
+    
+    // Sentence Store State
+    const [sentenceInput, setSentenceInput] = useState('');
+    const [sentences, setSentences] = useState([]);
+    const [loadingSentences, setLoadingSentences] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+
+    // --- API FUNCTIONS ---
+
+    const generateApiKey = async () => {
+        setGenerating(true);
+        setApiKey(null);
+        setSumResult(null);
+        try {
+            const payload = { project: project?.name || 'default' };
+            const res = await fetch('http://localhost:5000/api/generate_key', { 
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const data = await res.json();
+            setApiKey(data.key);
+        } catch (err) {
+            console.error('Failed to generate API key', err);
+            setApiKey('ERROR_GENERATING_KEY');
+        } finally {
+            setGenerating(false);
+        }
+    };
+
+    const computeSum = async () => {
+        if (!apiKey) return;
+        setSumResult(null);
+        try {
+            const res = await fetch('http://localhost:5000/api/sum_digits', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key: apiKey })
+            });
+            if (!res.ok) throw new Error('Network response was not ok');
+            const data = await res.json();
+            setSumResult(data.sum);
+        } catch (err) {
+            console.error('Failed to compute sum', err);
+            setSumResult('ERR');
+        }
+    };
+
+    const submitSentence = async () => {
+        if (!apiKey) return;
+        const sentence = sentenceInput?.trim();
+        if (!sentence) return;
+        
+        setSubmitting(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/submit_sentence', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({ sentence })
+            });
+            if (!res.ok) throw new Error('submit failed');
+            
+            setSentenceInput('');
+            await fetchSentences(); // Refresh list
+        } catch (err) {
+            console.error('Failed to submit sentence', err);
+            alert('Failed to submit. Ensure Backend is running.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const fetchSentences = async () => {
+        if (!apiKey) return;
+        setLoadingSentences(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/sentences', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${apiKey}` }
+            });
+            if (!res.ok) throw new Error('failed to fetch');
+            const data = await res.json();
+            setSentences(data.sentences || []);
+        } catch (err) {
+            console.error('Failed to load sentences', err);
+        } finally {
+            setLoadingSentences(false);
+        }
+    };
+
+    // --- EFFECTS ---
 
     useEffect(() => {
-        const init = async () => {
-            // Safely retrieve initial auth token or use null
-            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        if (apiKey) fetchSentences();
+        else setSentences([]);
+    }, [apiKey]);
 
-            if (initialAuthToken) {
-                await signInWithCustomToken(auth, initialAuthToken);
-            } else {
-                // For local development or when token is missing, sign in anonymously.
-                await signInAnonymously(auth);
+    // Keyboard shortcut 'G'
+    useEffect(() => {
+        if (!project) return;
+        const handler = (e) => {
+            if ((e.key === 'g' || e.key === 'G') && !e.ctrlKey && !e.metaKey) {
+                // Prevent triggering if typing in an input
+                if(document.activeElement.tagName !== 'INPUT') {
+                    generateApiKey();
+                }
             }
         };
-        init();
-    }, []);
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [project]);
 
-    useEffect(() => {
-        if (!user) return;
-        
-        // This query will likely fail silently or log an error in local dev 
-        // if the dummy config is used, but it's kept for the Canvas environment.
-        const q = query(
-            collection(db, 'artifacts', appId, 'public', 'data', 'alerts'),
-            // NOTE: orderBy is disabled for Canvas compatibility unless necessary
-            limit(5)
-        );
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            if (snapshot.empty) {
-                setRecentAlerts(MOCK_ALERTS);
-            } else {
-                setRecentAlerts(snapshot.docs.map(d => ({id: d.id, ...d.data()})));
-            }
-        }, (err) => {
-             console.error("Fetch error - Falling back to mock data.", err);
-             setRecentAlerts(MOCK_ALERTS);
-        });
-
-        return () => unsubscribe();
-    }, [user]);
+    // --- RENDER ---
 
     if (!user) {
         return (
@@ -545,10 +614,8 @@ const Dashboard = ({ user, handleLogin }) => {
                     <div className="bg-stone-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-stone-900">
                         <Shield className="w-10 h-10 text-stone-900" />
                     </div>
-                    
                     <h2 className="text-3xl font-serif font-bold text-stone-900 mb-3">Company Portal</h2>
                     <p className="text-stone-500 mb-8 font-medium">Sign in to view your safety reports.</p>
-                    
                     <button 
                         onClick={handleLogin}
                         className="w-full bg-stone-900 text-white font-bold py-4 rounded-xl flex items-center justify-center hover:bg-stone-800 transition-all gap-3 shadow-md hover:-translate-y-0.5"
@@ -581,21 +648,98 @@ const Dashboard = ({ user, handleLogin }) => {
             </header>
 
             {/* Project List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+            <div className="grid grid-cols-1 gap-8 mb-16">
                 {project ? (
-                    <div className="bg-blue-100 p-8 rounded-[2rem] border-2 border-stone-900 shadow-[6px_6px_0px_rgba(0,0,0,0.1)] flex flex-col h-56 justify-between relative overflow-hidden group hover:-translate-y-1 transition-all">
-                         <div className="flex justify-between items-start z-10">
-                             <div>
-                                <span className="inline-block px-3 py-1 bg-white border border-stone-900 rounded-full text-xs font-bold uppercase tracking-widest text-stone-900 mb-3">{project.type}</span>
-                                <h3 className="text-3xl font-serif font-bold text-stone-900">{project.name}</h3>
-                             </div>
-                             <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-stone-900 animate-pulse"></div>
+                    <>
+                        {/* 1. The Project Card */}
+                        <div className="bg-blue-100 p-8 rounded-[2rem] border-2 border-stone-900 shadow-[6px_6px_0px_rgba(0,0,0,0.1)] flex flex-col h-56 justify-between relative overflow-hidden group hover:-translate-y-1 transition-all">
+                             <div className="flex justify-between items-start z-10">
+                                 <div>
+                                    <span className="inline-block px-3 py-1 bg-white border border-stone-900 rounded-full text-xs font-bold uppercase tracking-widest text-stone-900 mb-3">{project.type}</span>
+                                    <h3 className="text-3xl font-serif font-bold text-stone-900">{project.name}</h3>
+                                 </div>
+                                 <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-stone-900 animate-pulse"></div>
+                            </div>
+                            <div className="flex flex-wrap gap-3 z-10 items-center">
+                                 <button
+                                     onClick={generateApiKey}
+                                     className="px-4 py-2 bg-white border-2 border-stone-900 rounded-lg text-sm font-bold text-stone-900 hover:bg-stone-50 transition-colors flex items-center gap-2"
+                                     disabled={generating}
+                                 >
+                                     {generating ? 'Generating…' : 'Generate Key'}
+                                 </button>
+                                 
+                                 {apiKey && (
+                                     <div className="flex items-center gap-2 bg-white p-2 rounded-lg border-2 border-stone-900 ml-auto">
+                                         <code className="font-mono text-sm text-stone-800 px-2">{apiKey}</code>
+                                         <div className="h-4 w-px bg-stone-300"></div>
+                                         <button onClick={() => navigator.clipboard?.writeText(apiKey)} className="p-1.5 hover:bg-stone-100 rounded"><Copy className="w-4 h-4"/></button>
+                                         <button onClick={computeSum} className="p-1.5 hover:bg-stone-100 rounded font-bold text-xs">SUM</button>
+                                         {sumResult !== null && <span className="font-bold text-green-600 text-sm px-2">{sumResult}</span>}
+                                     </div>
+                                 )}
+                            </div>
                         </div>
-                        <div className="flex gap-3 z-10">
-                             <button className="px-4 py-2 bg-white border-2 border-stone-900 rounded-lg text-sm font-bold text-stone-900 hover:bg-stone-50 transition-colors">Settings</button>
-                             <button className="px-4 py-2 bg-white border-2 border-stone-900 rounded-lg text-sm font-bold text-stone-900 hover:bg-stone-50 transition-colors">Keys</button>
+
+                        {/* 2. The Sentence Store (Moved Here) */}
+                        <div className="bg-white rounded-[2rem] border-2 border-stone-900 shadow-[6px_6px_0px_rgba(0,0,0,0.1)] p-8">
+                            <h3 className="font-serif font-bold text-xl text-stone-900 mb-4 flex items-center gap-2">
+                                <MessageCircle className="w-6 h-6" />
+                                Data Recall System
+                            </h3>
+                            
+                            {!apiKey ? (
+                                <div className="p-6 bg-stone-50 border-2 border-dashed border-stone-200 rounded-xl text-center text-stone-400">
+                                    Generate an API key above to start storing data.
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="flex gap-3">
+                                        <input
+                                            value={sentenceInput}
+                                            onChange={(e) => setSentenceInput(e.target.value)}
+                                            placeholder="Type something to store securely..."
+                                            className="flex-1 p-4 border-2 border-stone-200 rounded-xl bg-stone-50 focus:outline-none focus:border-stone-900 transition-colors"
+                                            onKeyDown={(e) => e.key === 'Enter' && submitSentence()}
+                                        />
+                                        <button
+                                            onClick={submitSentence}
+                                            disabled={submitting || !sentenceInput}
+                                            className="px-6 py-2 bg-stone-900 text-white rounded-xl font-bold disabled:opacity-50 hover:-translate-y-0.5 transition-transform shadow-sm"
+                                        >
+                                            {submitting ? 'Saving...' : 'Store'}
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="font-bold text-sm text-stone-500 uppercase tracking-widest">Stored Data</h4>
+                                            <button onClick={fetchSentences} className="text-sm font-bold text-indigo-600 hover:text-indigo-800">Refresh List</button>
+                                        </div>
+                                        
+                                        <div className="max-h-64 overflow-y-auto pr-2 space-y-3">
+                                            {loadingSentences ? (
+                                                <div className="text-center py-8 text-stone-400">Loading data...</div>
+                                            ) : sentences.length === 0 ? (
+                                                <div className="text-center py-8 text-stone-400 italic border-2 border-dashed border-stone-100 rounded-xl">
+                                                    No data stored yet.
+                                                </div>
+                                            ) : (
+                                                sentences.map((s, i) => (
+                                                    <div key={i} className="p-4 bg-stone-50 rounded-xl border border-stone-200 flex justify-between items-start group hover:border-stone-400 transition-colors">
+                                                        <div className="text-stone-800 font-medium">{s.sentence}</div>
+                                                        <div className="text-xs font-mono text-stone-400 mt-1 bg-white px-2 py-1 rounded border border-stone-100">
+                                                            {new Date((s.ts||0)*1000).toLocaleTimeString()}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    </div>
+                    </>
                 ) : (
                     <button 
                         onClick={() => setShowOnboarding(true)}
@@ -607,48 +751,6 @@ const Dashboard = ({ user, handleLogin }) => {
                         <span className="font-bold">Create your first project</span>
                     </button>
                 )}
-            </div>
-
-            <div className="bg-white rounded-[2.5rem] border-2 border-stone-900 shadow-[6px_6px_0px_rgba(0,0,0,0.1)] overflow-hidden p-2">
-                <div className="px-8 py-6 flex justify-between items-center border-b border-stone-100">
-                    <h3 className="font-serif font-bold text-xl text-stone-900">Recent Flags</h3>
-                    <button className="text-sm font-bold text-stone-400 hover:text-stone-900">View All</button>
-                </div>
-                <div className="overflow-x-auto px-2 pb-2">
-                    <table className="w-full text-left">
-                        <thead className="text-stone-400 text-xs uppercase tracking-wider font-bold">
-                            <tr>
-                                <th className="px-6 py-3">Type</th>
-                                <th className="px-6 py-3">User</th>
-                                <th className="px-6 py-3">Platform</th>
-                                <th className="px-6 py-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-stone-100">
-                            {recentAlerts.map((alert) => (
-                                <tr key={alert.id} className="group hover:bg-stone-50 transition-colors rounded-xl">
-                                    <td className="px-6 py-4">
-                                        <div className="font-bold text-stone-900">{alert.type}</div>
-                                        <div className="text-xs text-stone-400">{alert.timestamp}</div>
-                                    </td>
-                                    <td className="px-6 py-4 font-mono text-sm text-stone-500 group-hover:text-indigo-600 transition-colors">
-                                        {alert.user}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-stone-100 text-stone-800 border border-stone-200">
-                                            {alert.platform}
-                                         </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <button className="text-xs font-bold bg-white border-2 border-stone-200 text-stone-600 px-3 py-1.5 rounded-lg hover:border-stone-900 hover:text-stone-900 transition-all">
-                                            Review
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     );
@@ -703,37 +805,23 @@ export default function App() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            // Note: In local dev with dummy config, this might only fire for anonymous sign-in.
-            // When run in Canvas, it correctly identifies logged-in users.
-            if (currentUser && !currentUser.isAnonymous) {
-                setUser(currentUser);
-            } else {
-                setUser(null);
-            }
-        });
-        return () => unsubscribe();
+        // Skip Firebase auth subscription in local/dummy mode — use mock login instead.
+        setUser(null);
     }, []);
 
     const handleLogin = async () => {
-        try {
-            const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-        } catch (error) {
-            console.error("Login Error:", error);
-            // In case of error (e.g., in local dev without proper setup), provide a mock user.
-            const mockUser = {
-                uid: 'demo_admin',
-                displayName: 'Demo Admin',
-                email: 'admin@apex.security',
-                isAnonymous: false
-            };
-            setUser(mockUser);
-        }
+        // For local development we skip Firebase and use a mock user directly.
+        const mockUser = {
+            uid: 'demo_admin',
+            displayName: 'Demo Admin',
+            email: 'admin@apex.security',
+            isAnonymous: false
+        };
+        setUser(mockUser);
     };
 
     const handleLogout = async () => {
-        await signOut(auth);
+        // Skip Firebase sign-out in local mode; just clear the mock user.
         setUser(null);
         setView('landing');
     };
@@ -752,6 +840,7 @@ export default function App() {
                 {view === 'docs' && <Documentation />}
                 {view === 'portal' && <Dashboard user={user} handleLogin={handleLogin} />}
             </main>
+            
             <Footer />
         </div>
     );
