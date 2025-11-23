@@ -13,16 +13,16 @@ The detection process follows a four-stage pipeline, transforming raw text into 
 
 ### 1. Semantic Embedding (Vectorization)
 
-- **Input**: Raw **XML conversation logs**.
+- **Input**: Raw XML conversation logs.
 - **Process**: Every message in the conversation is passed through the **Cohere Embed v4 API**. This converts text into a 1536-dimensional vector representation.
 
-This process captures meaning, context, and intent, allowing the system to understand the underlying relationships between words without them being explicitly stated. The resulting vectors support numerical comparisons and operations.
+This process captures meaning, context, and intent, allowing the system to understand the underlying relationships between words without them being explained. The resulting vectors also support numerical comparisons and operations.
 
 ### 2. Contextual Graph Construction
 
 This stage determines the structure of the conversation. A graph \( G = (V, E) \) is built, where:
 
-- **Node (V)**: Individual **message vectors**.
+- **Node (V)**: Individual message vectors.
 - **Edge (E)**: Contextual links between messages.
 
 The edge weight between message \( A \) and \( B \) is calculated using multiplicative time decay:
@@ -46,7 +46,7 @@ This stage compares the current conversation against known predatory patterns. I
 
 This stage serves as a safety net for explicit threats. While the clustering captures semantic patterns, a heuristic penalty is applied for high-risk vocabulary.
 
-The final verdict is a probability score based on the ratio of distances:
+The final output is a probability score based on the ratio of distances:
 
 $$ P(Predator) = 1 - \frac{D'_{pred}}{D'_{pred} + D_{norm}} $$
 
