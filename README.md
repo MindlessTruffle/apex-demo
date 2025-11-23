@@ -55,3 +55,5 @@ This yields:
 - A percentage confidence indicating the likelihood of predatory behaviour.
 - A binary label of predator/safe.
 - Interpretability with distance metrics and keywords found.
+
+Use visualize.py to create animations for how the algorithm works for a specified conversation. 
