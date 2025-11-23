@@ -42,7 +42,7 @@ def runInference(chat_data):
         dist_pred: float
         dist_norm float
     """
-    model_path = r"C:\Users\sammy\apex-demo\backend\mini_predator_model.pt"
+    model_path = r".\mini_predator_model.pt"
     detector = PredatorDetector("dummy.txt")
     detector.load_model(model_path)
     embedder = MessageEmbedder(API_KEY)
