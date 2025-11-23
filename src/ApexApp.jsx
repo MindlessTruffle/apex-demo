@@ -309,8 +309,8 @@ const FeatureBoard = () => (
                     </StickyNote>
                 </div>
                 <div className="pt-8">
-                    <StickyNote title="Super Fast" icon={Zap} color="bg-green-200" rotate="-rotate-1">
-                        With 5ms latency, your users won't even know we're there. Safe chat in real-time.
+                    <StickyNote title="Plug and Play" icon={Zap} color="bg-green-200" rotate="-rotate-1">
+                        With plug-and-play integration, setup and getting started is a breeze. No complicated setup!
                     </StickyNote>
                 </div>
             </div>
@@ -795,7 +795,7 @@ const Footer = () => (
             </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 text-center">
-            <p className="text-stone-400 text-xs font-bold">© 2024 Apex Security Inc. Made in San Francisco.</p>
+            <p className="text-stone-400 text-xs font-bold">© 2025 Apex Security Inc. Made in Waterloo.</p>
         </div>
     </footer>
 );
